@@ -7,6 +7,7 @@ int main()
     {
         double values1[8] = { 1, 2, 3, 4, 4, 3, 2, 1 };
         Matrix test1 = Matrix(2, 4, values1);
+        Matrix test11 = Matrix(4, 2, values1);
         std::cout << test1[0] << std::endl;
         Vector test2 = Vector(4, values1);
         std::cout << test1[1] - test2 << std::endl;
@@ -20,6 +21,8 @@ int main()
 
         std::cout << test3 << std::endl;
         std::cout << test4 << std::endl;
+
+        std::cout << test1 * test11 << std::endl;
 
         std::cout << test1 * test2 << std::endl;
     }

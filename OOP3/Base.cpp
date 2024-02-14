@@ -74,18 +74,12 @@ double Base::getValue(size_t index) const
 
 bool Base::canSum(const Base& other) const
 {
-    if (getRows() != other.getRows() || getCols() != other.getCols())
-        return false;
-    else
-        return true;
+    return getRows() == other.getRows() && getCols() == other.getCols();
 }
 
 bool Base::canMul(const Base& other) const
 {
-    if (getRows() != other.getCols())
-        return false;
-    else
-        return true;
+    return getRows() == other.getCols();
 }
 
 void Base::setRows(size_t newRows)
@@ -397,6 +391,9 @@ Matrix& Matrix::operator*=(const Base& other)
     int rows = getRows();
     int columns = other.getCols();
     double sum;
+
+    setRows(rows);
+    setCols(columns);
 
     double* resultData = new double[rows * columns];
 
