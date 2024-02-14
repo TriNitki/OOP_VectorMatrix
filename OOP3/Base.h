@@ -13,6 +13,8 @@ protected:
 
 	Base(size_t rows = 0, size_t columns = 0, double* values = nullptr);
 
+	Base(const Base& other);
+
 	Base(Base&& other) noexcept;
 
 	~Base();
@@ -43,6 +45,10 @@ public:
 	virtual Base& operator*=(double scalar) = 0;
 
 	virtual void setValue(double value, size_t index);
+
+	bool canMul(const Base& other) const;
+
+	bool canSum(const Base& other) const;
 
 	friend std::ostream& operator<<(std::ostream& os, const Base& base);
 
@@ -118,8 +124,3 @@ Vector operator-(const Vector& first, const Base& second);
 double operator*(const Vector& first, const Base& second);
 
 Vector operator*(const Vector& vector, double scalar);
-
-
-bool canSum(const Base& first, const Base& second);
-
-bool canMul(const Base& first, const Base& second);

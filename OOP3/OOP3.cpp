@@ -9,15 +9,21 @@ int main()
         Matrix test1 = Matrix(2, 4, values1);
         std::cout << test1[0] << std::endl;
         Vector test2 = Vector(4, values1);
-
         std::cout << test1[1] - test2 << std::endl;
+
+        double values2[4] = { 1, 2, 3, 4 };
+        Matrix test3 = Matrix(1, 4, values2);
+        Vector test4 = Vector(4, values2);
+
+        test3 += test4;
+        test4 += test3;
+
+        std::cout << test3 << std::endl;
+        std::cout << test4 << std::endl;
+
+        std::cout << test1 * test2 << std::endl;
     }
-    catch (const std::invalid_argument error)
-    {
-        std::cout << error.what() << std::endl;
-        return 1;
-    }
-    catch (const std::out_of_range error)
+    catch (const std::exception error)
     {
         std::cout << error.what() << std::endl;
         return 1;

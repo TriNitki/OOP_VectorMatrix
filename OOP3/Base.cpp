@@ -22,6 +22,9 @@ Base::Base(size_t rows, size_t cols, double* values)
     _id = idCounter++;
 }
 
+Base::Base(const Base& other):
+    Base(other._rows, other._cols, other._data) {}
+
 Base::Base(Base&& other) noexcept
 {
     std::swap(this->_cols, other._cols);
@@ -67,6 +70,22 @@ double Base::getValue(size_t index) const
     }
 
     return _data[index];
+}
+
+bool Base::canSum(const Base& other) const
+{
+    if (getRows() != other.getRows() || getCols() != other.getCols())
+        return false;
+    else
+        return true;
+}
+
+bool Base::canMul(const Base& other) const
+{
+    if (getRows() != other.getCols())
+        return false;
+    else
+        return true;
 }
 
 void Base::setRows(size_t newRows)
@@ -131,7 +150,7 @@ std::istream& operator>>(std::istream& is, Base& base)
 // Vector
 
 Vector::Vector(const Vector& other) :
-    Base(other._rows, other._cols, other._data) {}
+    Base(other) {}
 
 Vector::Vector(size_t size, double* values) :
     Base(1, size, values) {}
@@ -177,11 +196,11 @@ Base& Vector::operator=(const Base& other)
 
 Base& Vector::operator+=(const Base& other)
 {
-    if (not canSum(*this, other))
+    if (!canSum(other))
     {
         throw std::invalid_argument(
-            "Objects have different size. Object 1 id: " + std::to_string(_id) + ", Object 2 id: " +
-            std::to_string(other.getId()));
+            "Objects have different size. Object 1 id: " + std::to_string(_id) + 
+            ", Object 2 id: " + std::to_string(other.getId()));
     }
 
     size_t size = _cols;
@@ -196,11 +215,11 @@ Base& Vector::operator+=(const Base& other)
 
 Base& Vector::operator-=(const Base& other)
 {
-    if (not canSum(*this, other))
+    if (!canSum(other))
     {
         throw std::invalid_argument(
-            "Objects have different size. Object 1 id: " + std::to_string(_id) + ", Object 2 id: " +
-            std::to_string(other.getId()));
+            "Objects have different size. Object 1 id: " + std::to_string(_id) + 
+            ", Object 2 id: " + std::to_string(other.getId()));
     }
 
     size_t size = _cols;
@@ -233,7 +252,7 @@ Matrix::Matrix(size_t rows, size_t columns, double* values) :
     Base(rows, columns, values) {}
 
 Matrix::Matrix(const Matrix& other) :
-    Base(other._rows, other._cols, other._data) {}
+    Base(other) {}
 
 Matrix::Matrix(Matrix&& other) noexcept :
     Base(std::move(other)) {};
@@ -292,11 +311,11 @@ Vector Matrix::operator[](size_t index) const {
 
 Base& Matrix::operator+=(const Base& other)
 {
-    if (not canSum(*this, other))
+    if (!canSum(other))
     {
         throw std::invalid_argument(
-            "Objects have different dimensions. Object 1 id: " + std::to_string(_id) + ", Object 2 id: " +
-            std::to_string(other.getId()));
+            "Objects have different dimensions. Object 1 id: " + std::to_string(_id) + 
+            ", Object 2 id: " + std::to_string(other.getId()));
     }
 
     for (int i = 0; i < _rows; i++)
@@ -312,11 +331,11 @@ Base& Matrix::operator+=(const Base& other)
 
 Base& Matrix::operator-=(const Base& other)
 {
-    if (not canSum(*this, other))
+    if (!canSum(other))
     {
         throw std::invalid_argument(
-            "Objects have different dimensions. Object 1 id: " + std::to_string(_id) + ", Object 2 id: " +
-            std::to_string(other.getId()));
+            "Objects have different dimensions. Object 1 id: " + std::to_string(_id) + 
+            ", Object 2 id: " + std::to_string(other.getId()));
     }
 
 
@@ -368,11 +387,11 @@ Base& Matrix::operator=(const Base& other)
 
 Matrix& Matrix::operator*=(const Base& other)
 {
-    if (not canMul(*this, other))
+    if (!canMul(other))
     {
         throw std::invalid_argument(
             "Columns of the first object must be equal to rows of the second object. Object 1 id: " +
-            std::to_string(_id) + "Object 2 id: " + std::to_string(other.getId()));
+            std::to_string(_id) + ", Object 2 id: " + std::to_string(other.getId()));
     }
 
     int rows = getRows();
@@ -449,7 +468,7 @@ Vector operator*(const Vector& vector, double scalar)
 
 double operator*(const Vector& first, const Base& second)
 {
-    if (not canSum(first, second))
+    if (first.canMul(second))
     {
         throw std::invalid_argument(
             "Objects have different size. Object 1 id: " + 
@@ -466,22 +485,4 @@ double operator*(const Vector& first, const Base& second)
     }
 
     return result;
-}
-
-// Functions
-
-bool canSum(const Base& first, const Base& second)
-{
-    if (first.getRows() != second.getRows() || first.getCols() != second.getCols())
-        return false;
-    else
-        return true;
-}
-
-bool canMul(const Base& first, const Base& second)
-{
-    if (first.getRows() != second.getCols())
-        return false;
-    else
-        return true;
 }
