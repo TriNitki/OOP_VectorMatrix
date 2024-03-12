@@ -6,13 +6,16 @@ int main()
     try
     {
         double values1[8] = { 1, 2, 3, 4, 4, 3, 2, 1 };
-        Matrix test1 = Matrix(2, 4, values1);
-        Matrix test11 = Matrix(4, 2, values1);
-        std::cout << test1[0] << std::endl;
-        Vector test2 = Vector(4, values1);
-        std::cout << test1[1] - test2 << std::endl;
+        double values2[8] = { 10, 20, 30, 40};
+        Vector aaa(4, values2);
+        Matrix test1(2, 4, values1);
+        Matrix test11(4, 2, values1);
+        
+        test1[0][0] = 10;
 
-        double values2[4] = { 1, 2, 3, 4 };
+        std::cout << test1[0][0] << std::endl;
+        Vector test2 = Vector(4, values1);
+
         Matrix test3 = Matrix(1, 4, values2);
         Vector test4 = Vector(4, values2);
 

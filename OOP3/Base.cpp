@@ -4,7 +4,7 @@ unsigned int idCounter = 1;
 
 // Base
 
-Base::Base(size_t rows, size_t cols, double* values)
+Base::Base(size_t rows, size_t cols, const double* values)
 {
     _rows = rows;
     _cols = cols;
@@ -27,9 +27,9 @@ Base::Base(const Base& other):
 
 Base::Base(Base&& other) noexcept
 {
-    std::swap(this->_cols, other._cols);
-    std::swap(this->_rows, other._rows);
-    std::swap(this->_data, other._data);
+    std::swap(_cols, other._cols);
+    std::swap(_rows, other._rows);
+    std::swap(_data, other._data);
 
     _id = idCounter++;
 }
@@ -104,9 +104,9 @@ void Base::setValue(double value, size_t index)
 
 Base& Base::operator=(Base&& other) noexcept
 {
-    std::swap(this->_cols, other._cols);
-    std::swap(this->_rows, other._rows);
-    std::swap(this->_data, other._data);
+    std::swap(_cols, other._cols);
+    std::swap(_rows, other._rows);
+    std::swap(_data, other._data);
 
     return *this;
 }
@@ -146,7 +146,7 @@ std::istream& operator>>(std::istream& is, Base& base)
 Vector::Vector(const Vector& other) :
     Base(other) {}
 
-Vector::Vector(size_t size, double* values) :
+Vector::Vector(size_t size, const double* values) :
     Base(1, size, values) {}
 
 Vector::Vector(Vector&& other) noexcept :
@@ -239,10 +239,10 @@ Base& Vector::operator*=(double scalar)
 
 // Matrix
 
-Matrix::Matrix(size_t otherSize, double* values) :
+Matrix::Matrix(size_t otherSize, const double* values) :
     Base(otherSize, otherSize, values) {}
 
-Matrix::Matrix(size_t rows, size_t columns, double* values) :
+Matrix::Matrix(size_t rows, size_t columns, const double* values) :
     Base(rows, columns, values) {}
 
 Matrix::Matrix(const Matrix& other) :
@@ -253,7 +253,7 @@ Matrix::Matrix(Matrix&& other) noexcept :
 
 double Matrix::getValue(size_t row, size_t column) const
 {
-    if (row > this->_rows || column > this->_cols)
+    if (row > _rows || column > _cols)
     {
         throw std::out_of_range("Index out of range. Object id: " + std::to_string(_id));
     }
@@ -263,7 +263,7 @@ double Matrix::getValue(size_t row, size_t column) const
 
 void Matrix::setValue(double value, size_t row, size_t column)
 {
-    if (row > this->_rows || column > this->_cols)
+    if (row > _rows || column > _cols)
     {
         throw std::out_of_range("Index out of range. Object id: " + std::to_string(_id));
     }
@@ -271,36 +271,23 @@ void Matrix::setValue(double value, size_t row, size_t column)
     _data[row * _cols + column] = value;
 }
 
-Vector Matrix::operator[](size_t index)
+Matrix::Row Matrix::operator[](size_t index)
 {
     if (index >= _rows)
     {
         throw std::out_of_range("Index out of range. Object id: " + std::to_string(_id));
     }
-    double* newData = new double[_cols];
 
-    for (size_t i = _cols * index; i < _cols * (index + 1); i++)
-    {
-        newData[i % _cols] = _data[i];
-    }
-
-    return Vector(_cols, newData);;
+    return Row(_cols, &_data[index * _cols]);;
 }
 
-Vector Matrix::operator[](size_t index) const {
+Matrix::Row Matrix::operator[](size_t index) const {
     if (index >= _rows)
     {
         throw std::out_of_range("Index out of range. Object id: " + std::to_string(_id));
     }
-    double* newData = new double[_cols];
 
-    for (size_t i = _cols * index; i < _cols * (index + 1); i++)
-    {
-        newData[i % _cols] = _data[i];
-    }
-
-    Vector newVector(_cols, newData);
-    return newVector;
+    return Row(_cols, &_data[index * _cols]);
 }
 
 Base& Matrix::operator+=(const Base& other)
@@ -390,10 +377,11 @@ Matrix& Matrix::operator*=(const Base& other)
 
     int rows = getRows();
     int columns = other.getCols();
-    double sum;
-
+    
     setRows(rows);
     setCols(columns);
+
+    double sum;
 
     double* resultData = new double[rows * columns];
 
@@ -410,6 +398,22 @@ Matrix& Matrix::operator*=(const Base& other)
 
     _data = resultData;
     return *this;
+}
+
+// Row
+
+double& Matrix::Row::operator[](size_t index) {
+    if (index > _size)
+        throw std::invalid_argument("Index out of range.");
+
+    return _data[index];
+}
+
+double Matrix::Row::operator[](size_t index) const {
+    if (index > _size)
+        throw std::invalid_argument("Index out of range.");
+
+    return _data[index];
 }
 
 // Operators

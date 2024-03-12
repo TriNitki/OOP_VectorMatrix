@@ -11,7 +11,7 @@ protected:
 	size_t _cols;
 	unsigned int _id;
 
-	Base(size_t rows = 0, size_t columns = 0, double* values = nullptr);
+	Base(size_t rows = 0, size_t columns = 0, const double* values = nullptr);
 
 	Base(const Base& other);
 
@@ -58,7 +58,7 @@ public:
 class Vector : public Base
 {
 public:
-	Vector(size_t size = 0, double* values = nullptr);
+	Vector(size_t size = 0, const double* values = nullptr);
 
 	Vector(Vector&& other) noexcept;
 
@@ -79,10 +79,23 @@ public:
 
 class Matrix : public Base
 {
-public:
-	Matrix(size_t size, double* values);
+private:
+	class Row {
+	private:
+		double* _data;
+		size_t _size;
+	public:
+		Row(size_t size, double* values) :
+			_data(values), _size(size) {}
 
-	Matrix(size_t rows = 0, size_t columns = 0, double* values = nullptr);
+		double& operator[](size_t col);
+
+		double operator[](size_t col) const;
+	};
+public:
+	Matrix(size_t size, const double* values);
+
+	Matrix(size_t rows = 0, size_t columns = 0, const double* values = nullptr);
 
 	Matrix(const Matrix& other);
 
@@ -102,11 +115,10 @@ public:
 
 	Base& operator*=(double scalar);
 
-	Vector operator[](size_t index);
+	Row operator[](size_t index);
 
-	Vector operator[](size_t index) const;
+	Row operator[](size_t index) const;
 };
-
 
 Matrix operator+(const Matrix& first, const Base& second);
 
